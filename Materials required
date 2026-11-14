@@ -1,0 +1,25 @@
+| Category | Component | Specification / Rating | Qty |
+| --- | --- | --- | --- |
+| **Microcontroller** | Arduino Uno | ATmega328P, 5V logic, 16 MHz | 1 |
+| **RFID Hardware** | MFRC522 RFID Reader Module | 13.56 MHz SPI transceiver | 1 |
+| **RFID Keys** | Passive MIFARE Tags | 13.56 MHz key fobs / cards | 2+ |
+| **Ignition Switch** | 1-Channel Relay Module | `JQC-3F-05VDC-C` (5V coil, 10A load) | 1 |
+| **Voltage Regulator** | DC-DC Buck Converter | Step-down (12V–14.5V DC to 5.0V DC) | 1 |
+| **Circuit Protection** | Inline Fuse Holder + Fuse | 10A automotive blade fuse | 1 |
+| **Polarity Protection** | Rectifier Diode | 1N4007 (1A, 1000V) | 1 |
+| **Noise Filtering** | Electrolytic Capacitor | 470 µF to 1000 µF (25V or 35V rated) | 1 |
+| **Standby Cutoff** | Master Toggle Switch | 12V SPST hidden cutoff switch | 1 |
+| **Audio Feedback** | Active Buzzer | 5V DC continuous tone | 1 |
+| **Visual Feedback** | Status LED + Resistor | 5mm LED + 220 Ω (1/4W) resistor | 1 each |
+| **Vibration Mount** | Uno Screw-Terminal Shield | Optional (or direct soldered headers) | 1 |
+| **Weatherproofing** | IP65 Project Enclosure | Approx. 100 x 68 x 50 mm ABS box | 1 |
+
+**Wiring, Connectors & Mounting Consumables**
+
+* **16–18 AWG Automotive Copper Wire:** For high-current 12V battery feed, relay `COM`/`NO` ignition lines, and main chassis ground.
+* **22–24 AWG Hookup Wire:** For 5V/3.3V logic rails, SPI lines, buzzer, and LED connections.
+* **Automotive Bullet / Spade Connectors:** For clean, removable splicing into the scooter's ignition harness.
+* **Dual-Wall Adhesive Heat-Shrink Tubing:** To seal soldered joints against rain, moisture, and fuel vapors.
+* **Rubber Grommets / PG7 Cable Glands:** To waterproof wire entry points on the project enclosure.
+* **3M VHB Double-Sided Foam Tape & Zip Ties:** For mounting the enclosure and securing the MFRC522 behind a plastic body panel (maintaining 15–20 mm clearance from metal frame parts).
+* **Rosin-Core Solder & Silicone Sealant / Hot Glue:** For permanent electrical joints and vibration strain relief.
