@@ -1,0 +1,137 @@
+THIS CODE IS STILL RAW SINCE DIFFERENT VEHICLE MODELS COME WITH DIFFERENT TWEAK THAT NEEDS TO BE DONE SINCE MY VEHICLE IS A CARBURATOR VEHICLE IT USES A CDI INSTEAD OF ECU HENCE MY CODE IS SIMPLER.
+
+#include <SPI.h>
+#include <MFRC522.h>
+
+// --- Pin Definitions (Matching Hardware Wiring) ---
+#define RST_PIN     9     // RC522 RST
+#define SS_PIN      10    // RC522 SDA (SS)
+#define LED_PIN     2     // Status LED (via 220 Ohm resistor)
+#define BUZZER_PIN  3     // 5V Active Buzzer (+)
+#define RELAY_PIN   4     // Relay Module IN
+
+// --- Relay Polarity Configuration ---
+// Most JQC-3F-05VDC-C modules are Active-LOW (LOW = ON, HIGH = OFF).
+// Swap LOW and HIGH below if your relay triggers in reverse.
+#define RELAY_ON    LOW
+#define RELAY_OFF   HIGH
+
+// --- Authorized RFID Tag UIDs ---
+// Replace these sample UIDs with your own card/fob UIDs from the Serial Monitor
+const String authorizedUIDs[] = {
+  "A1 B2 C3 D4",   // Primary Key Fob
+  "12 34 56 78"    // Backup RFID Card
+};
+const int numAuthorizedTags = sizeof(authorizedUIDs) / sizeof(authorizedUIDs[0]);
+
+MFRC522 mfrc522(SS_PIN, RST_PIN);
+
+bool ignitionState = false;           // Tracks whether scooter ignition is ON or OFF
+unsigned long lastScanTime = 0;       // Prevents accidental double-toggling
+const unsigned long cooldownMs = 2000; // 2-second lockout after a valid scan
+
+void setup() {
+  // Set relay OFF before enabling OUTPUT mode to prevent startup flicker
+  digitalWrite(RELAY_PIN, RELAY_OFF);
+  pinMode(RELAY_PIN, OUTPUT);
+
+  pinMode(LED_PIN, OUTPUT);
+  pinMode(BUZZER_PIN, OUTPUT);
+  digitalWrite(LED_PIN, LOW);
+  digitalWrite(BUZZER_PIN, LOW);
+
+  Serial.begin(9600);
+  SPI.begin();
+  mfrc522.PCD_Init();
+
+  // Optional: Maximize RC522 antenna gain for reading through plastic fairings
+  mfrc522.PCD_SetAntennaGain(mfrc522.RxGain_max);
+
+  Serial.println("RFID Scooter Ignition Ready. Scan tag...");
+}
+
+void loop() {
+  // Look for a new RFID card/fob
+  if (!mfrc522.PICC_IsNewCardPresent()) {
+    return;
+  }
+
+  // Read the card serial data
+  if (!mfrc522.PICC_ReadCardSerial()) {
+    return;
+  }
+
+  // Format scanned UID into uppercase hex string (e.g., "A1 B2 C3 D4")
+  String scannedUID = "";
+  for (byte i = 0; i < mfrc522.uid.size; i++) {
+    if (mfrc522.uid.uidByte[i] < 0x10) {
+      scannedUID += "0";
+    }
+    scannedUID += String(mfrc522.uid.uidByte[i], HEX);
+    if (i < mfrc522.uid.size - 1) {
+      scannedUID += " ";
+    }
+  }
+  scannedUID.toUpperCase();
+
+  Serial.print("Scanned UID: ");
+  Serial.println(scannedUID);
+
+  // Check if the scanned UID matches any authorized tag
+  if (isAuthorized(scannedUID)) {
+    if (millis() - lastScanTime >= cooldownMs) {
+      lastScanTime = millis();
+      toggleIgnition();
+    }
+  } else {
+    Serial.println("Access Denied: Unauthorized Tag");
+    denyAlert();
+  }
+
+  // Halt PICC and stop encryption so the reader stays responsive
+  mfrc522.PICC_HaltA();
+  mfrc522.PCD_StopCrypto1();
+}
+
+bool isAuthorized(String uid) {
+  for (int i = 0; i < numAuthorizedTags; i++) {
+    if (uid == authorizedUIDs[i]) {
+      return true;
+    }
+  }
+  return false;
+}
+
+void toggleIgnition() {
+  ignitionState = !ignitionState;
+
+  if (ignitionState) {
+    // Turn Scooter Ignition ON
+    digitalWrite(RELAY_PIN, RELAY_ON);
+    digitalWrite(LED_PIN, HIGH);
+    Serial.println("Ignition: ON");
+    beep(1, 180); // Single confirmation beep
+  } else {
+    // Turn Scooter Ignition OFF
+    digitalWrite(RELAY_PIN, RELAY_OFF);
+    digitalWrite(LED_PIN, LOW);
+    Serial.println("Ignition: OFF");
+    beep(2, 90);  // Double short beep for shutdown
+  }
+}
+
+void denyAlert() {
+  // 3 rapid warning beeps without changing ignition state
+  beep(3, 70);
+}
+
+void beep(int count, int durationMs) {
+  for (int i = 0; i < count; i++) {
+    digitalWrite(BUZZER_PIN, HIGH);
+    delay(durationMs);
+    digitalWrite(BUZZER_PIN, LOW);
+    if (i < count - 1) {
+      delay(durationMs);
+    }
+  }
+}
