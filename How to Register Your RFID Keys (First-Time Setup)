@@ -1,0 +1,3 @@
+Upload the code as-is to your Arduino Uno while connected to your PC via USB.
+Open the Serial Monitor (Ctrl + Shift + M or Cmd + Shift + M) set to 9600 baud, and tap your RFID key fob and backup card against the reader.
+Copy the exact hex codes printed after Scanned UID: (for example, E4 8F 19 2B), paste them into the authorizedUIDs[] array at lines 18–19, and re-upload the sketch.
