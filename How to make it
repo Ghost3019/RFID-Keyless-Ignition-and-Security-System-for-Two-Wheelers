@@ -1,0 +1,34 @@
+1
+Build and Calibrate the 12V Power Stage
+Workbench setup - 15 min
+Start by building the front-end protection circuit so the scooter's noisy charging system cannot damage your electronics. Solder an inline 10A blade fuse holder onto your main 12V input wire, then split that wire into two branches: one thick 16–18 AWG line set aside for the relay, and a thinner 22 AWG line routed through your hidden master cutoff toggle switch. After the switch, solder the 1N4007 diode in series (with its silver stripe facing toward the buck converter) into the buck converter's IN+ pad. Finally, solder the 470 µF–1000 µF electrolytic capacitor across IN+ and IN-, matching the capacitor's striped negative leg to IN-.
+
+Verification: Connect a 12V battery or power supply to the input, flip the master switch on, and turn the small brass screw on the buck converter until your multimeter reads a steady 5.0V DC across OUT+ and OUT-.
+
+2
+Wire the RFID Reader to the Arduino Uno
+3.3V & SPI data lines
+With power disconnected, connect the MFRC522 RFID module to the Arduino Uno using a screw-terminal shield or soldered leads so road vibrations cannot shake wires loose. Wire VCC strictly to the Uno's 3.3V pin and GND to GND. Connect the remaining SPI communication pins in order: RST to Digital Pin 9, SDA (SS) to Digital Pin 10, MOSI to Digital Pin 11, MISO to Digital Pin 12, and SCK to Digital Pin 13, leaving IRQ unconnected.
+
+Verification: Plug the Arduino Uno into your computer via USB and open the Serial Monitor; tapping your RFID card against the reader should display its unique card ID cleanly without the board resetting.
+
+3
+Connect the Relay Control, Buzzer, and Status LED
+Low-voltage logic side
+On the 3-pin header side of your JQC-3F-05VDC-C relay module, connect VCC to the buck converter's 5V output, GND to common ground, and IN to Digital Pin 4. For visual feedback, solder a 220 Ω resistor onto the long positive leg of your status LED and wire it to Digital Pin 2, connecting the short leg to ground. For audio feedback, connect the positive (long) leg of the 5V active buzzer to Digital Pin 3 and its negative leg to ground.
+
+Verification: Power up the workbench circuit and swipe your registered RFID card—the relay should make a crisp mechanical click, the status LED should stay lit, and the buzzer should emit a confirmation beep.
+
+4
+Weatherproof and Mount the Hardware
+Vibration & RF clearance
+Mount the Arduino Uno, buck converter, and relay inside an IP65 weatherproof project box using foam tape or standoffs, keeping the box away from hot exhaust headers. Feed all cables through rubber grommets and seal every exposed solder joint with adhesive heat-shrink tubing. Mount the MFRC522 RFID reader separately behind a plastic body panel (such as the front apron or under-seat storage wall), keeping at least 15–20 mm of air gap from any metal chassis tubes so the metal does not block the radio signal.
+
+Verification: Close the project box, give it a firm tap to ensure nothing rattles inside, and hold your RFID key fob against the outside of the plastic panel to confirm it still triggers reliably through the plastic.
+
+5
+Splice the Relay into the Scooter's Ignition Harness
+12V high-current wiring
+Disconnect the scooter's negative battery terminal. Locate the two wires from your existing hot-wire switch: the 12V Constant Battery Live wire (which carries 12V even when the scooter is off) and the Switched Ignition Live wire (which powers the dashboard and ignition when connected). Tie the 12V Constant wire into the fused input line feeding both your buck converter branch and the middle screw terminal (COM) of the relay. Using 16–18 AWG wire, connect the scooter's Switched Ignition wire to the top screw terminal (NO / Normally Open) of the relay, leaving the bottom terminal (NC) completely empty. Finally, bolt the system's common ground (IN- and Arduino GND) to the battery negative terminal or a clean bare-metal chassis ground.
+
+Verification: Reconnect the negative battery terminal—the scooter's dashboard must remain completely dark until you swipe your authorized RFID tag, at which point the relay clicks shut, the cluster lights up, and the engine starts normally.
